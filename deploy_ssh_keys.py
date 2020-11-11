@@ -343,20 +343,21 @@ class ssh_deploy:
     if self.sshTargetUsr not in stdOutStr:
       #print(' - add user %s on target host' % self.sshTargetUsr)
       sshCli.exec_command('sudo adduser %s' % self.sshTargetUsr)
-      sshCli.exec_command('sudo usermod -aG wheel %s' % self.sshTargetUsr)
+
+      #-Add user to admin groups (sudo/wheel)---
+      stdin, stdout, stderr = sshCli.exec_command('cat /etc/group')
+      stdout=stdout.readlines()
+      stdOutStr = " ".join(stdout)
+      if 'wheel' in stdOutStr:
+        sshCli.exec_command('sudo usermod -aG wheel %s' %self.sshTargetUsr )
+      elif 'sudo' in stdOutStr:
+        sshCli.exec_command('sudo usermod -aG sudo %s' %self.sshTargetUsr )
+
+      #sshCli.exec_command('sudo usermod -aG wheel %s' % self.sshTargetUsr)
       sshCli.exec_command('sudo mkdir -p %s' % usrSshPath)
       sshCli.exec_command('sudo chown -R '+self.sshTargetUsr+':'+self.sshTargetUsr+' ' + usrHomePath)
     
     sshCli.exec_command('sudo touch %s' % usrAuthKeysPath)
-
-    #-Add user to admin groups (sudo/wheel)---
-    stdin, stdout, stderr = sshCli.exec_command('cat /etc/group')
-    stdout=stdout.readlines()
-    stdOutStr = " ".join(stdout)
-    if 'wheel' in stdOutStr:
-      sshCli.exec_command('sudo usermod -aG wheel %s' %self.sshTargetUsr )
-    elif 'sudo' in stdOutStr:
-      sshCli.exec_command('sudo usermod -aG wheel %s' %self.sshTargetUsr )
 
 
     #-Get public key to deploy as string---
