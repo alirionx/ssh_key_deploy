@@ -340,9 +340,9 @@ class ssh_deploy:
     #print(stdOutStr)
     
     #-Create target user incl. ssh folder and files, if not exists---
-    if self.sshTargetUsr not in stdOutStr:
-      #print(' - add user %s on target host' % self.sshTargetUsr)
-      sshCli.exec_command('sudo adduser %s' % self.sshTargetUsr)
+    if self.sshTargetUsr+':' not in stdOutStr:
+      print(' - add user %s on target host' % self.sshTargetUsr)
+      sshCli.exec_command('sudo useradd %s' % self.sshTargetUsr)
 
       #-Add user to admin groups (sudo/wheel)---
       stdin, stdout, stderr = sshCli.exec_command('cat /etc/group')
@@ -356,7 +356,11 @@ class ssh_deploy:
       #sshCli.exec_command('sudo usermod -aG wheel %s' % self.sshTargetUsr)
       sshCli.exec_command('sudo mkdir -p %s' % usrSshPath)
       sshCli.exec_command('sudo chown -R '+self.sshTargetUsr+':'+self.sshTargetUsr+' ' + usrHomePath)
-    
+
+      #switch to bash 
+      #sshCli.exec_command('sudo chsh -s /bin/bash %s' % self.sshTargetUsr)
+      sshCli.exec_command('sudo usermod -s /bin/bash %s' % self.sshTargetUsr)
+
     sshCli.exec_command('sudo touch %s' % usrAuthKeysPath)
 
 
