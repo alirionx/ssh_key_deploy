@@ -461,7 +461,7 @@ class interactive_menu:
         #'filter': lambda val: val.lower()
       }
     ]
-    curSelect = self.PyInquirer.prompt(actSelect)
+    curSelect = PyInquirer.prompt(actSelect)
     curAct = curSelect['conf_act']
     funcObj = self.funcMapper[curAct]
     self.call_user_input(funcObj)
